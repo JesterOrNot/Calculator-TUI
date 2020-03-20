@@ -5,7 +5,7 @@ use std::{
 
 use cursive::{
     theme::{Color, PaletteColor, Theme},
-    views::{Dialog, EditView, TextView},
+    views::{Dialog, EditView},
     Cursive,
 };
 
@@ -21,22 +21,22 @@ impl Display for AwnserPair {
 
 impl AwnserPair {
     pub fn new(pair: (f32, f32)) -> Self {
-        return Self { pair: pair };
+        Self { pair }
     }
 }
 
 pub fn display_calculate(app: &mut Cursive, a: &str, b: &str, c: &str) {
     if a.is_empty() || b.is_empty() || c.is_empty() {
-        app.pop_layer();
-        app.add_layer(
-            Dialog::around(TextView::new("Error: must fill out all fields!"))
-                .button("Quit", |s| s.quit()),
-        );
+        app.add_layer(Dialog::around(Dialog::info(
+            "Error: must fill out all fields!",
+        )));
         return;
     }
     let content = format!("Awnser: {}", AwnserPair::new(calculate(a, b, c)));
-    app.pop_layer();
-    app.add_layer(Dialog::around(TextView::new(content)).button("Quit", |s| s.quit()));
+    clear_val(app, "A");
+    clear_val(app, "B");
+    clear_val(app, "C");
+    app.add_layer(Dialog::around(Dialog::info(content)));
 }
 
 fn calculate(a: &str, b: &str, c: &str) -> (f32, f32) {
@@ -57,6 +57,11 @@ fn parse_num(n: &str) -> f32 {
 pub fn get_val(evt: &mut Cursive, label: &str) -> Rc<String> {
     evt.call_on_name(label, |view: &mut EditView| view.get_content())
         .unwrap()
+}
+
+fn clear_val(evt: &mut Cursive, label: &str) {
+    evt.call_on_name(label, |view: &mut EditView| view.set_content(""))
+        .unwrap();
 }
 
 pub fn default_theme(app: &Cursive) -> Theme {

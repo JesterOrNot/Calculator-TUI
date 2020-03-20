@@ -27,7 +27,8 @@ fn main() {
                 let b = get_val(evt, "B");
                 let c = get_val(evt, "C");
                 display_calculate(&mut evt, &a, &b, &c);
-            }),
+            })
+            .button("Quit", |s| s.quit()),
     );
     app.run();
 }
