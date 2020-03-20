@@ -1,35 +1,14 @@
 mod lib;
 
-use cursive::{
-    traits::Nameable,
-    views::{Dialog, EditView, ListView},
-    Cursive,
-};
+use cursive::Cursive;
 use lib::*;
+use structopt::StructOpt;
 
 fn main() {
+    let cli = Cli::from_args();
     let mut app = Cursive::default();
     let theme = default_theme(&app);
+    select_command(&mut app, cli.cmd);
     app.set_theme(theme);
-    app.add_layer(
-        Dialog::new()
-            .title("TUI Calculator")
-            .padding_lrtb(1, 1, 1, 0)
-            .content(
-                ListView::new()
-                    .child("A", EditView::new().on_submit(|_, _| {}).with_name("A"))
-                    .delimiter()
-                    .child("B", EditView::new().on_submit(|_, _| {}).with_name("B"))
-                    .delimiter()
-                    .child("C", EditView::new().on_submit(|_, _| {}).with_name("C"))
-            )
-            .button("Submit", |mut evt: &mut Cursive| {
-                let a = get_val(evt, "A");
-                let b = get_val(evt, "B");
-                let c = get_val(evt, "C");
-                display_calculate(&mut evt, &a, &b, &c);
-            })
-            .button("Quit", |s| s.quit()),
-    );
     app.run();
 }

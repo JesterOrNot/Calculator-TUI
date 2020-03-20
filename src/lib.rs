@@ -3,11 +3,25 @@ use std::{
     rc::Rc,
 };
 
+use structopt::StructOpt;
+
 use cursive::{
     theme::{Color, PaletteColor, Theme},
-    views::{Dialog, EditView},
+    traits::Nameable,
+    views::{Dialog, EditView, ListView},
     Cursive,
 };
+
+#[derive(StructOpt)]
+pub enum Command {
+    Quadratic,
+}
+
+#[derive(StructOpt)]
+pub struct Cli {
+    #[structopt(subcommand)]
+    pub cmd: Command,
+}
 
 pub struct AwnserPair {
     pub pair: (f32, f32),
@@ -54,7 +68,7 @@ fn parse_num(n: &str) -> f32 {
     n.parse::<f32>().unwrap()
 }
 
-pub fn get_val(evt: &mut Cursive, label: &str) -> Rc<String> {
+fn get_val(evt: &mut Cursive, label: &str) -> Rc<String> {
     evt.call_on_name(label, |view: &mut EditView| view.get_content())
         .unwrap()
 }
@@ -68,4 +82,33 @@ pub fn default_theme(app: &Cursive) -> Theme {
     let mut theme = app.current_theme().clone();
     theme.palette[PaletteColor::Background] = Color::TerminalDefault;
     theme
+}
+
+pub fn select_command(mut app: &mut Cursive, cmd: Command) {
+    match cmd {
+        Command::Quadratic => build_quadratic_tui(&mut app)
+    }
+}
+
+fn build_quadratic_tui(app: &mut Cursive) {
+    app.add_layer(
+        Dialog::new()
+            .title("TUI Calculator")
+            .padding_lrtb(1, 1, 1, 0)
+            .content(
+                ListView::new()
+                    .child("A", EditView::new().on_submit(|_, _| {}).with_name("A"))
+                    .delimiter()
+                    .child("B", EditView::new().on_submit(|_, _| {}).with_name("B"))
+                    .delimiter()
+                    .child("C", EditView::new().on_submit(|_, _| {}).with_name("C")),
+            )
+            .button("Submit", |mut evt: &mut Cursive| {
+                let a = get_val(evt, "A");
+                let b = get_val(evt, "B");
+                let c = get_val(evt, "C");
+                display_calculate(&mut evt, &a, &b, &c);
+            })
+            .button("Quit", |s| s.quit()),
+    );
 }
