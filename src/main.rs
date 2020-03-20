@@ -14,13 +14,14 @@ fn main() {
     app.add_layer(
         Dialog::new()
             .title("TUI Calculator")
+            .padding_lrtb(1, 1, 1, 0)
             .content(
                 ListView::new()
                     .child("A", EditView::new().on_submit(|_, _| {}).with_name("A"))
                     .delimiter()
                     .child("B", EditView::new().on_submit(|_, _| {}).with_name("B"))
                     .delimiter()
-                    .child("C", EditView::new().on_submit(|_, _| {}).with_name("C")),
+                    .child("C", EditView::new().on_submit(|_, _| {}).with_name("C"))
             )
             .button("Submit", |mut evt: &mut Cursive| {
                 let a = get_val(evt, "A");
