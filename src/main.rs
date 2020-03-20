@@ -1,8 +1,9 @@
-use cursive::traits::Nameable;
 use cursive::{
+    traits::Nameable,
     views::{Dialog, EditView, ListView, TextView},
     Cursive,
 };
+use std::rc::Rc;
 
 fn main() {
     let mut app = Cursive::default();
@@ -15,37 +16,22 @@ fn main() {
                     .delimiter()
                     .child("B", EditView::new().on_submit(|_, _| {}).with_name("B"))
                     .delimiter()
-                    .child("C", EditView::new().on_submit(|_, _| {}).with_name("C"))
+                    .child("C", EditView::new().on_submit(|_, _| {}).with_name("C")),
             )
-            .button("Ok", |mut evt: &mut Cursive| {
-                let a = evt
-                    .call_on_name("A", |view: &mut EditView| {
-                        view.get_content()
-                    })
-                    .unwrap();
-                let b = evt
-                    .call_on_name("B", |view: &mut EditView| {
-                        view.get_content()
-                    })
-                    .unwrap();
-                let c = evt
-                    .call_on_name("C", |view: &mut EditView| {
-                        view.get_content()
-                    })
-                    .unwrap();
+            .button("Submit", |mut evt: &mut Cursive| {
+                let a = get_val(evt, "A");
+                let b = get_val(evt, "B");
+                let c = get_val(evt, "C");
                 display_calculate(&mut evt, &a, &b, &c);
             }),
     );
     app.run();
 }
 
-fn display_calculate(s: &mut Cursive, a: &str, b: &str, c: &str) {
-    let content = format!(
-        "Awnser: {}",
-        calculate(a, b, c)
-    );
-    s.pop_layer();
-    s.add_layer(Dialog::around(TextView::new(content)).button("Quit", |s| s.quit()));
+fn display_calculate(app: &mut Cursive, a: &str, b: &str, c: &str) {
+    let content = format!("Awnser: {}", calculate(a, b, c));
+    app.pop_layer();
+    app.add_layer(Dialog::around(TextView::new(content)).button("Quit", |s| s.quit()));
 }
 
 fn calculate(a: &str, b: &str, c: &str) -> i32 {
@@ -54,4 +40,9 @@ fn calculate(a: &str, b: &str, c: &str) -> i32 {
 
 fn parse_num(n: &str) -> i32 {
     n.parse::<i32>().unwrap()
+}
+
+fn get_val(evt: &mut Cursive, label: &str) -> Rc<String> {
+    evt.call_on_name(label, |view: &mut EditView| view.get_content())
+        .unwrap()
 }
