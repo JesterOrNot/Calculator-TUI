@@ -51,6 +51,14 @@ fn main() {
 }
 
 fn display_calculate(app: &mut Cursive, a: &str, b: &str, c: &str) {
+    if a.is_empty() || b.is_empty() || c.is_empty() {
+        app.pop_layer();
+        app.add_layer(
+            Dialog::around(TextView::new("Error: must fill out all fields!"))
+                .button("Quit", |s| s.quit()),
+        );
+        return;
+    }
     let content = format!("Awnser: {}", AwnserPair::new(calculate(a, b, c)));
     app.pop_layer();
     app.add_layer(Dialog::around(TextView::new(content)).button("Quit", |s| s.quit()));
