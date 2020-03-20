@@ -49,6 +49,26 @@ pub fn select_command(mut app: &mut Cursive, cmd: Command) {
     }
 }
 
+pub fn quadratic_equ(a: f32, b: f32, c: f32) -> (f32, f32) {
+    (
+        (-b + f32::sqrt(b.powf(2.0) - 4.0 * a * c)) / 2.0 * a,
+        (-b - f32::sqrt(b.powf(2.0) - 4.0 * a * c)) / 2.0 * a,
+    )
+}
+
+pub fn parse_num(n: &str) -> f32 {
+    n.parse::<f32>().unwrap()
+}
+
+fn clear_val(evt: &mut Cursive, label: &str) {
+    evt.call_on_name(label, |view: &mut EditView| view.set_content(""))
+        .unwrap();
+}
+
+fn calculate(a: &str, b: &str, c: &str) -> (f32, f32) {
+    quadratic_equ(parse_num(a), parse_num(b), parse_num(c))
+}
+
 fn display_calculate(app: &mut Cursive, a: &str, b: &str, c: &str) {
     if a.is_empty() || b.is_empty() || c.is_empty() {
         app.add_layer(Dialog::around(Dialog::info(
@@ -61,26 +81,6 @@ fn display_calculate(app: &mut Cursive, a: &str, b: &str, c: &str) {
     clear_val(app, "B");
     clear_val(app, "C");
     app.add_layer(Dialog::around(Dialog::info(content)));
-}
-
-fn quadratic_equ(a: f32, b: f32, c: f32) -> (f32, f32) {
-    (
-        (-b + f32::sqrt(b.powf(2.0) - 4.0 * a * c)) / 2.0 * a,
-        (-b - f32::sqrt(b.powf(2.0) - 4.0 * a * c)) / 2.0 * a,
-    )
-}
-
-fn clear_val(evt: &mut Cursive, label: &str) {
-    evt.call_on_name(label, |view: &mut EditView| view.set_content(""))
-        .unwrap();
-}
-
-fn calculate(a: &str, b: &str, c: &str) -> (f32, f32) {
-    quadratic_equ(parse_num(a), parse_num(b), parse_num(c))
-}
-
-fn parse_num(n: &str) -> f32 {
-    n.parse::<f32>().unwrap()
 }
 
 fn get_val(evt: &mut Cursive, label: &str) -> Rc<String> {
