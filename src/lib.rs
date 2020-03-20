@@ -1,16 +1,14 @@
-use std::{
-    fmt::{self, Display, Formatter},
-    rc::Rc,
-};
-
-use structopt::StructOpt;
-
 use cursive::{
     theme::{Color, PaletteColor, Theme},
     traits::Nameable,
     views::{Dialog, EditView, ListView},
     Cursive,
 };
+use std::{
+    fmt::{self, Display, Formatter},
+    rc::Rc,
+};
+use structopt::StructOpt;
 
 #[derive(StructOpt)]
 pub enum Command {
@@ -23,8 +21,8 @@ pub struct Cli {
     pub cmd: Command,
 }
 
-pub struct AwnserPair {
-    pub pair: (f32, f32),
+struct AwnserPair {
+    pair: (f32, f32),
 }
 
 impl Display for AwnserPair {
@@ -34,12 +32,24 @@ impl Display for AwnserPair {
 }
 
 impl AwnserPair {
-    pub fn new(pair: (f32, f32)) -> Self {
+    fn new(pair: (f32, f32)) -> Self {
         Self { pair }
     }
 }
 
-pub fn display_calculate(app: &mut Cursive, a: &str, b: &str, c: &str) {
+pub fn default_theme(app: &Cursive) -> Theme {
+    let mut theme = app.current_theme().clone();
+    theme.palette[PaletteColor::Background] = Color::TerminalDefault;
+    theme
+}
+
+pub fn select_command(mut app: &mut Cursive, cmd: Command) {
+    match cmd {
+        Command::Quadratic => build_quadratic_tui(&mut app),
+    }
+}
+
+fn display_calculate(app: &mut Cursive, a: &str, b: &str, c: &str) {
     if a.is_empty() || b.is_empty() || c.is_empty() {
         app.add_layer(Dialog::around(Dialog::info(
             "Error: must fill out all fields!",
@@ -53,15 +63,20 @@ pub fn display_calculate(app: &mut Cursive, a: &str, b: &str, c: &str) {
     app.add_layer(Dialog::around(Dialog::info(content)));
 }
 
-fn calculate(a: &str, b: &str, c: &str) -> (f32, f32) {
-    quadratic_equ(parse_num(a), parse_num(b), parse_num(c))
-}
-
-pub fn quadratic_equ(a: f32, b: f32, c: f32) -> (f32, f32) {
+fn quadratic_equ(a: f32, b: f32, c: f32) -> (f32, f32) {
     (
         (-b + f32::sqrt(b.powf(2.0) - 4.0 * a * c)) / 2.0 * a,
         (-b - f32::sqrt(b.powf(2.0) - 4.0 * a * c)) / 2.0 * a,
     )
+}
+
+fn clear_val(evt: &mut Cursive, label: &str) {
+    evt.call_on_name(label, |view: &mut EditView| view.set_content(""))
+        .unwrap();
+}
+
+fn calculate(a: &str, b: &str, c: &str) -> (f32, f32) {
+    quadratic_equ(parse_num(a), parse_num(b), parse_num(c))
 }
 
 fn parse_num(n: &str) -> f32 {
@@ -71,23 +86,6 @@ fn parse_num(n: &str) -> f32 {
 fn get_val(evt: &mut Cursive, label: &str) -> Rc<String> {
     evt.call_on_name(label, |view: &mut EditView| view.get_content())
         .unwrap()
-}
-
-fn clear_val(evt: &mut Cursive, label: &str) {
-    evt.call_on_name(label, |view: &mut EditView| view.set_content(""))
-        .unwrap();
-}
-
-pub fn default_theme(app: &Cursive) -> Theme {
-    let mut theme = app.current_theme().clone();
-    theme.palette[PaletteColor::Background] = Color::TerminalDefault;
-    theme
-}
-
-pub fn select_command(mut app: &mut Cursive, cmd: Command) {
-    match cmd {
-        Command::Quadratic => build_quadratic_tui(&mut app)
-    }
 }
 
 fn build_quadratic_tui(app: &mut Cursive) {
